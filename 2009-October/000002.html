@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%202/2%5D%20--maintainer%20option%20refactoring%2C%0A%09colorized%20output&In-Reply-To=%3C1255538265-11888-1-git-send-email-dante4d%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output</H1>
+    <B>David H&#225;jek</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%202/2%5D%20--maintainer%20option%20refactoring%2C%0A%09colorized%20output&In-Reply-To=%3C1255538265-11888-1-git-send-email-dante4d%40gmail.com%3E"
+       TITLE="[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output">dante4d at gmail.com
+       </A><BR>
+    <I>Wed Oct 14 18:37:45 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Aurman-dev] [PATCH] Draft implementation of --maintainer option
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[Aurman-dev] [PATCH 3/3] Proof of concept search function
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I refactored out some nastiness and made the code nicer to my eye.
+I also added a first insinght onto colored output. You can simply
+try by compiling and doing `aurman am --maintainer dante4d' e.g..
+
+Signed-off-by: David H&#225;jek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">dante4d at gmail.com</A>&gt;
+---
+ src/aurman/aurman.c |  187 +++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 121 insertions(+), 66 deletions(-)
+
+diff --git a/src/aurman/aurman.c b/src/aurman/aurman.c
+index b1c1d84..209f44d 100755
+--- a/src/aurman/aurman.c
++++ b/src/aurman/aurman.c
+@@ -1456,57 +1456,117 @@ static int parseargs(int argc, char *argv[])
+ }
+ 
+ // data from json query - this should be refactored later
+-char *aur_json_data = NULL;
+-size_t old_len = 0;
++static char *aur_rpc_data = NULL;
++static size_t old_len = 0;
++
+ /**
+- * @brief	cURL handler for exec_maintainer
++ * @brief	cURL write callback function used by am_curl_perform_aur_rpc
+  *
+  * @param 	ptr		raw data to save
+  * @param	size	size of character
+  * @param	nmemb   number of characters 
+  * @param	stream
+  * @return	number of bytes actually taken care of - other than passed = error
+- *
+- * @todo refactor
+  */
+ size_t am_curl_write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+ {
+-	//static size_t old_len = 0;
+ 	size_t cur_len = size * nmemb;
+ 	size_t new_len = old_len + cur_len;
+ 
+-	//am_printf(AM_LOG_DEBUG, &quot;old_len: %d\n&quot;, old_len);
+-	//am_printf(AM_LOG_DEBUG, &quot;cur_len: %d\n&quot;, cur_len);
+-	//am_printf(AM_LOG_DEBUG, &quot;new_len: %d\n&quot;, new_len);
+-
+-	aur_json_data = (char *)realloc(aur_json_data, new_len); // on first go, realloc is like malloc
+-
+-	//am_printf(AM_LOG_DEBUG, &quot;aur_json_data: %p\n&quot;, aur_json_data);
+-
+-	memcpy(aur_json_data + old_len, ptr, cur_len);
+-
++	// is this the good way to do it?
++	aur_rpc_data = (char *)realloc(aur_rpc_data, new_len);
++	memcpy(aur_rpc_data + old_len, ptr, cur_len);
+ 	old_len = new_len;
+ 
+ 	return cur_len; // no error
+ }
+ 
+-int am_perform_get(char *url, void **data, size_t *size)
+-{
++/**
++ * @brief	Perform AUR RPC
++ *
++ * @param	type	method to call
++ * @param	arg     argument to pass to method
++ * @param	data    retrieved characters, mus be freed afterwards
++ * @param	size    number of retrieved characters
++ * @return	0 success, others error
++ *
++ * See <A HREF="http://aur.archlinux.org/rpc.php">http://aur.archlinux.org/rpc.php</A> and <A HREF="http://aur.louipc.mine.nu/rpc.php.">http://aur.louipc.mine.nu/rpc.php.</A>
++ */
++int am_curl_perform_aur_rpc(
++		char const *type,
++		char const *arg,
++		char **data,
++		size_t *size)
++{                  
++	int ret = 0;
++	// @todo move to config
++	char const *base_url = &quot;<A HREF="http://aur.louipc.mine.nu/rpc.php">http://aur.louipc.mine.nu/rpc.php</A>&quot;; 
++    int len = 0;
++	char *full_url = NULL;
++
++	// url + '\0'
++	len = snprintf(NULL, 0, &quot;%s?type=%s&amp;arg=%s&quot;, base_url, type, arg) + 1;
++	if (!(full_url = calloc(len, sizeof(char)))) {
++		ret = -1; // @todo enum? 
++		goto exit;
++	}
++	snprintf(full_url, len, &quot;%s?type=%s&amp;arg=%s&quot;, base_url, type, arg);
++
+ 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, am_curl_write_callback);
+-    curl_easy_setopt(handle, CURLOPT_URL, url);
++    curl_easy_setopt(handle, CURLOPT_URL, full_url);
+     curl_easy_perform(handle);
+ 
+-	*data = aur_json_data;
+-	*size = old_len;
+-	
+-	return 0;
+-}
++	// nasty way to add trailing \0
++	aur_rpc_data = (char *)realloc(aur_rpc_data, old_len + 1);
++	aur_rpc_data[old_len] = '\0';
++	*data = aur_rpc_data;
++	*size = old_len;  	
++	// reset helper variables if another call should occur
++	aur_rpc_data = NULL;
++	old_len = 0;
+ 
+-//typedef void (*pkg_info_handler_t)(pkg_info_t *info);
++exit:
++	if (full_url != NULL) {
++		free(full_url);
++	}
++	return ret;
++}
+ 
+-void my_handler(pkg_info_t *info)
++/**
++ * @brief	A first go at colored output function
++ *
++ * @param	attr	see <A HREF="http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html">http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html</A>
++ * @param	fg    	see <A HREF="http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html">http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html</A>
++ * @param	bg	  	see <A HREF="http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html">http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html</A>
++ *
++ * This works as printf, but gives also color. For the sake if simplicity,
++ * I just use some hardcoded values down there, so next TODO is to
++ * introduce configurable colors and other things...
++ * We need to have it more flexible - just bold text, just color, just
++ * underline, just italic etc...
++ *
++ * See <A HREF="http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html">http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html</A> and
++ * <A HREF="http://aur.archlinux.org/packages.php?ID=11827.">http://aur.archlinux.org/packages.php?ID=11827.</A>
++ */
++int color_printf(int attr, int fg/*, int bg*/, char const *format, ...)
+ {
+-	printf(&quot;%s\n&quot;, info-&gt;name);
++	char command[13];
++	int ret;
++	va_list args;
++        
++	// begin colors
++	//sprintf(command, &quot;%c[%d;%d;%dm&quot;, 0x1B, attr, fg, bg);
++    printf(&quot;%c[%d;%dm&quot;, 0x1b, attr, fg);
++
++	// the text itself
++	va_start(args, format);
++	ret = vprintf(format, args);
++	va_end(args);
++
++	// end colors
++    printf(&quot;%c[0m&quot;, 0x1b);
++
++	return ret;
+ }
+ 
+ /**
+@@ -1523,59 +1583,54 @@ void my_handler(pkg_info_t *info)
+ int am_exec_maintainer(char *maintainer)
+ {
+ 	int ret = 0;
+-	// quick &amp; dirty way to get me where I need to be
+-	char *aur = &quot;<A HREF="http://aur.louipc.mine.nu/rpc.php">http://aur.louipc.mine.nu/rpc.php</A>&quot;;
+-	//char *aur = &quot;<A HREF="http://aur.archlinux.org/rpc.php">http://aur.archlinux.org/rpc.php</A>&quot;;
+-	int len;
+-	char *url = NULL;
+-	// am_perform_get output
+ 	void *data = NULL;
+ 	size_t size;
+-	char *str = NULL;
+-	//char *tail = NULL;
+-
+-	// check arg
+-	if (maintainer == NULL) {
+-		ret = -1; // @todo enum?
+-		goto exit;
+-	}
++	pkg_info_t info;
+ 
+-	len = snprintf(NULL, 0, &quot;%s?type=msearch&amp;arg=%s&quot;, aur, maintainer) + 1; // url + \0
+-	if (!(url = malloc(len * sizeof(char)))) {
+-		ret = -2; // @todo enum? 
+-		goto exit;
+-	}
+-	snprintf(url, len, &quot;%s?type=msearch&amp;arg=%s&quot;, aur, maintainer);
+-	//am_printf(AM_LOG_DEBUG, &quot;url: %s\n&quot;, url);
+-	
+-	// query aur
+-	if (am_perform_get(url, &amp;data, &amp;size) == 0) {
+-		//am_printf(AM_LOG_DEBUG, &quot;size: %d\n&quot;, size);
+-		// I don't like this, I know it's nasty
+-        str = (char *)malloc(size + 1);
+-		str[size] = '\0';
+-		strncpy(str, (char *)data, size);
+-		//am_printf(AM_LOG_DEBUG, &quot;str: %s\n&quot;, str);
+-        _am_pip_get_type(str, &amp;str);
+-		//am_printf(AM_LOG_DEBUG, &quot;tail: %s\n&quot;, tail);
++	if (am_curl_perform_aur_rpc(&quot;msearch&quot;, maintainer, &amp;data, &amp;size) == 0) {
++        _am_pip_get_type(data, &amp;data);
+ 		printf(&quot;Packags maintained by %s:\n&quot;, maintainer);
+-		//am_printf(AM_LOG_DEBUG, &quot;str: %s\n&quot;, str);
+-		_am_pip_foreach(str, NULL, my_handler); // crude temp name
+-        //free(str);
+-		free(data);
++        // @idea make function that parses json output and gives list of
++		// pkg_info structs
++		_am_pkg_info_init(&amp;info);
++		while (_am_pip_info(data, &amp;data, &amp;info)) {
++			//	typedef struct pkg_info {
++			// 		const char *name;
++			// 		const char *version;
++			// 		const char *description;
++			// 		const char *url;
++			// 		const char *path;
++			// 		const char *license;
++			// 		unsigned int id;
++			// 		unsigned int category;
++			// 		unsigned int location;
++			// 		unsigned int votes;
++			//	 	unsigned int out_of_date;
++			//	} pkg_info_t;
++			color_printf(1, 35, &quot;aur/&quot;);
++			color_printf(1, 37, &quot;%s &quot;, info.name);
++			color_printf(1, 32, &quot;%s\n&quot;, info.version);
++			color_printf(3, 37, &quot;\t%s\n&quot;, info.description);
++		}
++		// this felt messy for a simple task 
++		//_am_pip_foreach(data, NULL, my_handler);
+ 	} else {
+-		// panic!
+ 		ret = -3;
+ 		goto exit;
+ 	}
+ 
+ exit:
+-	if (url != NULL) {
+-		free(url);
++	if (data != NULL) {
++		free(data);
+ 	}
+ 	return ret;
+ }
+ 
++int am_exec_search(char *name)
++{
++	return 0;
++}
++
+ //------------------------------------------------------------------
+ int am_aur (int argc, char *argv[])
+ {
+-- 
+1.6.4.4
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Aurman-dev] [PATCH] Draft implementation of --maintainer option
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[Aurman-dev] [PATCH 3/3] Proof of concept search function
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. a4053f2acee40162c7f67c1bf82b5d25601e2e94
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5Baurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20master%2C%0A%09updated.%20a4053f2acee40162c7f67c1bf82b5d25601e2e94&In-Reply-To=%3C200910181428.n9IESDe3019823%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000005.html">
+   <LINK REL="Next"  HREF="000007.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. a4053f2acee40162c7f67c1bf82b5d25601e2e94</H1>
+    <B>djszapi at archlinux.us</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5Baurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20master%2C%0A%09updated.%20a4053f2acee40162c7f67c1bf82b5d25601e2e94&In-Reply-To=%3C200910181428.n9IESDe3019823%40sheep.berlios.de%3E"
+       TITLE="[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. a4053f2acee40162c7f67c1bf82b5d25601e2e94">djszapi at archlinux.us
+       </A><BR>
+    <I>Sun Oct 18 16:28:13 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000005.html">[aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 7253e66996a192df8b4843f9481316a9507d59da
+</A></li>
+        <LI>Next message: <A HREF="000007.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 572d05918fc7f85a73a22a7f3ff98e1dc9ac45c6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This is an automated email from the git hooks/post-receive script. It was
+generated because a ref change was pushed to the repository containing
+the project &quot;Project aurman at BerliOS&quot;.
+
+The branch, master has been updated
+       via  a4053f2acee40162c7f67c1bf82b5d25601e2e94 (commit)
+       via  40c91f4fd0fab7a16c5dbeb695fa4a83fe7aa042 (commit)
+       via  7253e66996a192df8b4843f9481316a9507d59da (commit)
+       via  8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac (commit)
+      from  66369585e205e37b74778d4e34b292639948779f (commit)
+
+Those revisions listed above that are new to this repository have
+not appeared on any other notification email; so we list those
+revisions in full, below.
+
+- Log -----------------------------------------------------------------
+commit a4053f2acee40162c7f67c1bf82b5d25601e2e94
+Author: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+Date:   Sun Oct 18 01:55:08 2009 +0200
+
+    build: fix autotools warnings/errors
+    
+    Fix the following autoreconf warnings:
+    
+    libtoolize: You should add the contents of the following files to `aclocal.m4':
+    libtoolize:   `/usr/share/aclocal/libtool.m4'
+    libtoolize:   `/usr/share/aclocal/ltoptions.m4'
+    libtoolize:   `/usr/share/aclocal/ltversion.m4'
+    libtoolize:   `/usr/share/aclocal/ltsugar.m4'
+    libtoolize:   `/usr/share/aclocal/lt~obsolete.m4'
+    libtoolize: Consider adding `AC_CONFIG_MACRO_DIR([m4])' to configure.ac and
+    libtoolize: rerunning libtoolize, to keep the correct libtool macros in-tree.
+    libtoolize: Consider adding `-I m4' to ACLOCAL_AMFLAGS in Makefile.am.
+    Makefile.am: required file `./NEWS' not found
+    Makefile.am: required file `./ChangeLog' not found
+    configure.ac:132: required file `./ABOUT-NLS' not found
+    
+    Signed-off-by: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+
+commit 40c91f4fd0fab7a16c5dbeb695fa4a83fe7aa042
+Author: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+Date:   Sun Oct 18 01:46:28 2009 +0200
+
+    Update .gitignore and remove autotools files
+    
+    All the ignored files should not be tracked or they do not get
+    removed on `git clean -dfx`, thus preventing correct reruns of
+    autogen.sh
+
+-----------------------------------------------------------------------
+
+Summary of changes:
+ .gitignore          |   30 +-
+ INSTALL             |  245 --
+ Makefile.in         |  805 ------
+ aclocal.m4          | 3149 -----------------------
+ autoclean.sh        |   30 +-
+ autogen.sh          |    6 +-
+ config.guess        | 1526 -----------
+ config.h.in         |  246 --
+ config.sub          | 1658 ------------
+ configure.ac        |    3 +-
+ depcomp             |  584 -----
+ install-sh          |  507 ----
+ lib/libalam/alam.h  |    5 +
+ ltmain.sh           | 6956 ---------------------------------------------------
+ m4/.gitignore       |    2 +
+ missing             |  367 ---
+ mkinstalldirs       |  161 --
+ src/aurman/aurman.c |  296 ++-
+ src/aurman/conf.c   |    1 +
+ src/aurman/conf.h   |   77 +-
+ 20 files changed, 275 insertions(+), 16379 deletions(-)
+ delete mode 100644 INSTALL
+ delete mode 100644 Makefile.in
+ delete mode 100644 aclocal.m4
+ delete mode 100755 config.guess
+ delete mode 100644 config.h.in
+ delete mode 100755 config.sub
+ delete mode 100755 depcomp
+ delete mode 100755 install-sh
+ delete mode 100755 ltmain.sh
+ create mode 100644 m4/.gitignore
+ delete mode 100755 missing
+ delete mode 100755 mkinstalldirs
+
+
+hooks/post-receive
+-- 
+Project aurman at BerliOS
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000005.html">[aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 7253e66996a192df8b4843f9481316a9507d59da
+</A></li>
+	<LI>Next message: <A HREF="000007.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 572d05918fc7f85a73a22a7f3ff98e1dc9ac45c6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>

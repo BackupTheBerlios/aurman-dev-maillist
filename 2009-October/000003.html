@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Aurman-dev] [PATCH 3/3] Proof of concept search function
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%203/3%5D%20Proof%20of%20concept%20search%20function&In-Reply-To=%3C1255539297-12475-1-git-send-email-dante4d%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000002.html">
+   <LINK REL="Next"  HREF="000004.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Aurman-dev] [PATCH 3/3] Proof of concept search function</H1>
+    <B>David H&#225;jek</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%203/3%5D%20Proof%20of%20concept%20search%20function&In-Reply-To=%3C1255539297-12475-1-git-send-email-dante4d%40gmail.com%3E"
+       TITLE="[Aurman-dev] [PATCH 3/3] Proof of concept search function">dante4d at gmail.com
+       </A><BR>
+    <I>Wed Oct 14 18:54:57 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000002.html">[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output
+</A></li>
+        <LI>Next message: <A HREF="000004.html">[Aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I just want to show how easily I've done a search function now I made
+some prerequisitary stuff. I'd pretty much honor from refactoring of the
+oprion parser to the function pointer thing, so we could easily throw in
+some more options. I'd like to have the yaourt -Ss AUR search thing done
+ASAP, which is the main reason I use yaourt beside doing makepkg in the
+process on the fetched PKGBUILD and then pacman -U.
+
+Signed-off-by: David H&#225;jek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">dante4d at gmail.com</A>&gt;
+---
+ src/aurman/aurman.c |   36 +++++++++++++++++++++++++++++++++---
+ 1 files changed, 33 insertions(+), 3 deletions(-)
+
+diff --git a/src/aurman/aurman.c b/src/aurman/aurman.c
+index 209f44d..c33fb68 100755
+--- a/src/aurman/aurman.c
++++ b/src/aurman/aurman.c
+@@ -1589,7 +1589,7 @@ int am_exec_maintainer(char *maintainer)
+ 
+ 	if (am_curl_perform_aur_rpc(&quot;msearch&quot;, maintainer, &amp;data, &amp;size) == 0) {
+         _am_pip_get_type(data, &amp;data);
+-		printf(&quot;Packags maintained by %s:\n&quot;, maintainer);
++		printf(&quot;Packages maintained by %s:\n&quot;, maintainer);
+         // @idea make function that parses json output and gives list of
+ 		// pkg_info structs
+ 		_am_pkg_info_init(&amp;info);
+@@ -1626,9 +1626,35 @@ exit:
+ 	return ret;
+ }
+ 
+-int am_exec_search(char *name)
++/**
++ * @brief	Experimental search function
++ */
++int am_exec_search(char *arg)
+ {
+-	return 0;
++ 	int ret = 0;
++	void *data = NULL;
++	size_t size;
++	pkg_info_t info;
++
++	if (am_curl_perform_aur_rpc(&quot;search&quot;, arg, &amp;data, &amp;size) == 0) {
++        _am_pip_get_type(data, &amp;data);
++		_am_pkg_info_init(&amp;info);
++		while (_am_pip_info(data, &amp;data, &amp;info)) {
++			color_printf(1, 35, &quot;aur/&quot;);
++			color_printf(1, 37, &quot;%s &quot;, info.name);
++			color_printf(1, 32, &quot;%s\n&quot;, info.version);
++			color_printf(3, 37, &quot;\t%s\n&quot;, info.description);
++		}
++	} else {
++		ret = -3;
++		goto exit;
++	}
++
++exit:
++	if (data != NULL) {
++		free(data);
++	}
++	return ret;
+ }
+ 
+ //------------------------------------------------------------------
+@@ -1776,6 +1802,10 @@ int am_aur (int argc, char *argv[])
+ 		free(config-&gt;maintainer);
+ 	}
+ 
++	// quick &amp; dirty test of search func
++	color_printf(&quot;A nasty hardcoded test of search function:&quot;);
++	am_exec_search(&quot;aurman&quot;);
++
+     curl_easy_cleanup(handle);
+     curl_global_cleanup();
+     free(pkg_name);
+-- 
+1.6.4.4
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000002.html">[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output
+</A></li>
+	<LI>Next message: <A HREF="000004.html">[Aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. f74f99d2481f7281ec135c0f143df9ed96f0e78a
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5Baurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20master%2C%0A%09updated.%20f74f99d2481f7281ec135c0f143df9ed96f0e78a&In-Reply-To=%3C200910242055.n9OKt0sm021651%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. f74f99d2481f7281ec135c0f143df9ed96f0e78a</H1>
+    <B>djszapi at archlinux.us</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5Baurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20master%2C%0A%09updated.%20f74f99d2481f7281ec135c0f143df9ed96f0e78a&In-Reply-To=%3C200910242055.n9OKt0sm021651%40sheep.berlios.de%3E"
+       TITLE="[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. f74f99d2481f7281ec135c0f143df9ed96f0e78a">djszapi at archlinux.us
+       </A><BR>
+    <I>Sat Oct 24 22:55:00 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 5c71d00964f7a4c74fe39347a20ff8fcb1a8c657
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 1f827bf273c494743233235226cc40d69f182b4d
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This is an automated email from the git hooks/post-receive script. It was
+generated because a ref change was pushed to the repository containing
+the project &quot;Project aurman at BerliOS&quot;.
+
+The branch, master has been updated
+  discards  5c71d00964f7a4c74fe39347a20ff8fcb1a8c657 (commit)
+  discards  9f108c579a51dd3c91025ea0b847080146c1ba76 (commit)
+  discards  28a65a5c93bf58f74d0106486da40b6fe54c3a97 (commit)
+  discards  d1c68217a4feb66d93754cd0208a16850bb9810e (commit)
+       via  f74f99d2481f7281ec135c0f143df9ed96f0e78a (commit)
+       via  ad281846ead811948610fb13b7346b249b8d4314 (commit)
+       via  168c7b0a2d1479018987277cd66f22e1b1194fec (commit)
+
+This update added new revisions after undoing existing revisions.  That is
+to say, the old revision is not a strict subset of the new revision.  This
+situation occurs when you --force push a change and generate a repository
+containing something like this:
+
+ * -- * -- B -- O -- O -- O (5c71d00964f7a4c74fe39347a20ff8fcb1a8c657)
+            \
+             N -- N -- N (f74f99d2481f7281ec135c0f143df9ed96f0e78a)
+
+When this happens we assume that you've already had alert emails for all
+of the O revisions, and so we here report only the revisions in the N
+branch from the common base, B.
+
+Those revisions listed above that are new to this repository have
+not appeared on any other notification email; so we list those
+revisions in full, below.
+
+- Log -----------------------------------------------------------------
+commit f74f99d2481f7281ec135c0f143df9ed96f0e78a
+Author: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+Date:   Sat Oct 24 22:53:27 2009 +0200
+
+    Add the first mysql.c serverside source file
+    
+    The task of this server code source to register a user in the AUR database
+    correctly.
+    
+    Signed-off-by: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+
+commit ad281846ead811948610fb13b7346b249b8d4314
+Author: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+Date:   Sat Oct 24 22:51:28 2009 +0200
+
+    Refactor colorizing in the frontend
+    
+    color.c source file was refactored, mainly the colorizeoutputline was refactored
+    according to the yaourt's color.sh library
+    
+    Signed-off-by: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+
+commit 168c7b0a2d1479018987277cd66f22e1b1194fec
+Author: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+Date:   Sat Oct 24 20:38:07 2009 +0200
+
+    Fix ALAM for Arch Linux AUR Management
+    
+    Signed-off-by: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+
+-----------------------------------------------------------------------
+
+Summary of changes:
+ .gitignore                                      |    3 -
+ Makefile.am                                     |    3 -
+ README                                          |    2 +-
+ acinclude.m4                                    | 4952 +++++++++++++++++++++++
+ config.rpath                                    |  614 +++
+ lib/libalam/po/{Makefile.in.in =&gt; Makefile.in}  |   42 +-
+ m4/.gitignore                                   |   31 -
+ m4/gcc-inline.m4                                |   19 -
+ m4/gcc-ssp.m4                                   |   19 -
+ m4/gcc-ssplib.m4                                |   17 -
+ m4/gcc-visibility.m4                            |   19 -
+ po/.gitignore                                   |    9 -
+ lib/libalam/po/Makefile.in.in =&gt; po/Makefile.in |   42 +-
+ {lib/libalam/po =&gt; po}/Makefile.in.in           |    0
+ {lib/libalam/po =&gt; po}/remove-potcdate.sin      |    0
+ scripts/Makefile.in                             |  492 +++
+ server/mysql.c                                  |  169 +
+ src/aurman/color.c                              |  238 +-
+ 18 files changed, 6417 insertions(+), 254 deletions(-)
+ create mode 100755 acinclude.m4
+ create mode 100755 config.rpath
+ copy lib/libalam/po/{Makefile.in.in =&gt; Makefile.in} (95%)
+ delete mode 100644 m4/gcc-inline.m4
+ delete mode 100644 m4/gcc-ssp.m4
+ delete mode 100644 m4/gcc-ssplib.m4
+ delete mode 100644 m4/gcc-visibility.m4
+ delete mode 100644 po/.gitignore
+ copy lib/libalam/po/Makefile.in.in =&gt; po/Makefile.in (95%)
+ copy {lib/libalam/po =&gt; po}/Makefile.in.in (100%)
+ mode change 100644 =&gt; 100755
+ copy {lib/libalam/po =&gt; po}/remove-potcdate.sin (100%)
+ create mode 100644 scripts/Makefile.in
+ create mode 100644 server/mysql.c
+
+
+hooks/post-receive
+-- 
+Project aurman at BerliOS
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 5c71d00964f7a4c74fe39347a20ff8fcb1a8c657
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[aurman-dev] [Git]Project aurman at BerliOS branch, master,	updated. 1f827bf273c494743233235226cc40d69f182b4d
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Aurman-dev] [PATCH] Draft implementation of --maintainer option
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%5D%20Draft%20implementation%20of%20--maintainer%20option&In-Reply-To=%3C1255518266-8068-1-git-send-email-dante4d%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Aurman-dev] [PATCH] Draft implementation of --maintainer option</H1>
+    <B>David H&#225;jek</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BPATCH%5D%20Draft%20implementation%20of%20--maintainer%20option&In-Reply-To=%3C1255518266-8068-1-git-send-email-dante4d%40gmail.com%3E"
+       TITLE="[Aurman-dev] [PATCH] Draft implementation of --maintainer option">dante4d at gmail.com
+       </A><BR>
+    <I>Wed Oct 14 13:04:26 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Aurman-dev] New list test
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I quickly added new code to make the option work. More of a proof of
+concept than nice code. I want to address a few issues left and make
+it nice when doscussed:
+1.	option parsing could use funtion poiter approach
+2.	from am_maintainer_exec_function, generic &quot;aur query function&quot;
+	could be extracted and reused in other places and corresponding
+	code refactored to be nice
+3.	parsing of json output can also be made little more generic
+
+Signed-off-by: David H&#225;jek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">dante4d at gmail.com</A>&gt;
+---
+ src/aurman/aurman.c |  131 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/aurman/conf.h   |    5 ++-
+ 2 files changed, 135 insertions(+), 1 deletions(-)
+
+diff --git a/src/aurman/aurman.c b/src/aurman/aurman.c
+index 59a1c4f..b1c1d84 100755
+--- a/src/aurman/aurman.c
++++ b/src/aurman/aurman.c
+@@ -1284,6 +1284,8 @@ static int parseargs(int argc, char *argv[])
+ 		{&quot;asexplicit&quot;,     		no_argument,   0, AM_LONG_OP_ASEXPLICIT},
+ 		{&quot;arch&quot;,       			required_argument, 0, AM_LONG_OP_ARCH},
+ 		/* {&quot;source&quot;,  			no_argument, 		0, AM_LONG_OP_SOURCE}, */
++		{&quot;maintainer&quot;,       	required_argument, 0, AM_LONG_OP_MAINTAINER},
++		
+ 		{0, 0, 0, 0}
+ 	};
+ 
+@@ -1433,6 +1435,9 @@ static int parseargs(int argc, char *argv[])
+ 			case AM_LONG_OP_LISTCAT:
+ 				list_cat();
+ 				break;
++			case AM_LONG_OP_MAINTAINER:
++				config-&gt;maintainer = strndup(optarg, 64); // AUR username seems to be 64 chars long 
++				break;   
+ 			case '?':
+ 				return(1);
+ 			default:
+@@ -1450,6 +1455,127 @@ static int parseargs(int argc, char *argv[])
+     return(1);
+ }
+ 
++// data from json query - this should be refactored later
++char *aur_json_data = NULL;
++size_t old_len = 0;
++/**
++ * @brief	cURL handler for exec_maintainer
++ *
++ * @param 	ptr		raw data to save
++ * @param	size	size of character
++ * @param	nmemb   number of characters 
++ * @param	stream
++ * @return	number of bytes actually taken care of - other than passed = error
++ *
++ * @todo refactor
++ */
++size_t am_curl_write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
++{
++	//static size_t old_len = 0;
++	size_t cur_len = size * nmemb;
++	size_t new_len = old_len + cur_len;
++
++	//am_printf(AM_LOG_DEBUG, &quot;old_len: %d\n&quot;, old_len);
++	//am_printf(AM_LOG_DEBUG, &quot;cur_len: %d\n&quot;, cur_len);
++	//am_printf(AM_LOG_DEBUG, &quot;new_len: %d\n&quot;, new_len);
++
++	aur_json_data = (char *)realloc(aur_json_data, new_len); // on first go, realloc is like malloc
++
++	//am_printf(AM_LOG_DEBUG, &quot;aur_json_data: %p\n&quot;, aur_json_data);
++
++	memcpy(aur_json_data + old_len, ptr, cur_len);
++
++	old_len = new_len;
++
++	return cur_len; // no error
++}
++
++int am_perform_get(char *url, void **data, size_t *size)
++{
++	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, am_curl_write_callback);
++    curl_easy_setopt(handle, CURLOPT_URL, url);
++    curl_easy_perform(handle);
++
++	*data = aur_json_data;
++	*size = old_len;
++	
++	return 0;
++}
++
++//typedef void (*pkg_info_handler_t)(pkg_info_t *info);
++
++void my_handler(pkg_info_t *info)
++{
++	printf(&quot;%s\n&quot;, info-&gt;name);
++}
++
++/**
++ * @brief	Execute `--maintainer' command.
++ *
++ * @param 	maintainer 	AUR username
++ * @return	0 success, others error
++ *
++ * @todo Interface could be refactored to generic handler typed
++ *   int (*exec_command)(char *)
++ * which would take argument string returned by getopt_long in optarg. That
++ * should work for all command, right?
++ */
++int am_exec_maintainer(char *maintainer)
++{
++	int ret = 0;
++	// quick &amp; dirty way to get me where I need to be
++	char *aur = &quot;<A HREF="http://aur.louipc.mine.nu/rpc.php">http://aur.louipc.mine.nu/rpc.php</A>&quot;;
++	//char *aur = &quot;<A HREF="http://aur.archlinux.org/rpc.php">http://aur.archlinux.org/rpc.php</A>&quot;;
++	int len;
++	char *url = NULL;
++	// am_perform_get output
++	void *data = NULL;
++	size_t size;
++	char *str = NULL;
++	//char *tail = NULL;
++
++	// check arg
++	if (maintainer == NULL) {
++		ret = -1; // @todo enum?
++		goto exit;
++	}
++
++	len = snprintf(NULL, 0, &quot;%s?type=msearch&amp;arg=%s&quot;, aur, maintainer) + 1; // url + \0
++	if (!(url = malloc(len * sizeof(char)))) {
++		ret = -2; // @todo enum? 
++		goto exit;
++	}
++	snprintf(url, len, &quot;%s?type=msearch&amp;arg=%s&quot;, aur, maintainer);
++	//am_printf(AM_LOG_DEBUG, &quot;url: %s\n&quot;, url);
++	
++	// query aur
++	if (am_perform_get(url, &amp;data, &amp;size) == 0) {
++		//am_printf(AM_LOG_DEBUG, &quot;size: %d\n&quot;, size);
++		// I don't like this, I know it's nasty
++        str = (char *)malloc(size + 1);
++		str[size] = '\0';
++		strncpy(str, (char *)data, size);
++		//am_printf(AM_LOG_DEBUG, &quot;str: %s\n&quot;, str);
++        _am_pip_get_type(str, &amp;str);
++		//am_printf(AM_LOG_DEBUG, &quot;tail: %s\n&quot;, tail);
++		printf(&quot;Packags maintained by %s:\n&quot;, maintainer);
++		//am_printf(AM_LOG_DEBUG, &quot;str: %s\n&quot;, str);
++		_am_pip_foreach(str, NULL, my_handler); // crude temp name
++        //free(str);
++		free(data);
++	} else {
++		// panic!
++		ret = -3;
++		goto exit;
++	}
++
++exit:
++	if (url != NULL) {
++		free(url);
++	}
++	return ret;
++}
++
+ //------------------------------------------------------------------
+ int am_aur (int argc, char *argv[])
+ {
+@@ -1590,6 +1716,11 @@ int am_aur (int argc, char *argv[])
+         /* am_pack(handle); */
+     /* } */
+ 
++	if (config-&gt;maintainer != NULL)	{
++		am_exec_maintainer(config-&gt;maintainer);
++		free(config-&gt;maintainer);
++	}
++
+     curl_easy_cleanup(handle);
+     curl_global_cleanup();
+     free(pkg_name);
+diff --git a/src/aurman/conf.h b/src/aurman/conf.h
+index dda440e..6377fe6 100755
+--- a/src/aurman/conf.h
++++ b/src/aurman/conf.h
+@@ -44,6 +44,8 @@ typedef struct __config_t {
+ 	char *category;
+ 	/* TODO how to handle cachedirs? */
+ 
++	char *maintainer;
++
+ 	unsigned short op_q_isfile;
+ 	unsigned short op_q_info;
+ 	unsigned short op_q_list;
+@@ -135,7 +137,8 @@ enum {
+ 	AM_LONG_OP_NEEDED,
+ 	AM_LONG_OP_ASEXPLICIT,
+ 	AM_LONG_OP_ARCH,
+-	AM_LONG_OP_SOURCE
++	AM_LONG_OP_SOURCE,
++	AM_LONG_OP_MAINTAINER
+ };
+ 
+ /* clean method */
+-- 
+1.6.4.4
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Aurman-dev] New list test
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Aurman-dev] [PATCH 2/2] --maintainer option refactoring,	colorized output
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>

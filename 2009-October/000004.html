@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/aurman-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20maint%2C%0A%09updated.%208b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac&In-Reply-To=%3C200910171401.n9HE1tvg002793%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac</H1>
+    <B>djszapi at archlinux.us</B> 
+    <A HREF="mailto:aurman-dev%40lists.berlios.de?Subject=Re%3A%20%5BAurman-dev%5D%20%5BGit%5DProject%20aurman%20at%20BerliOS%20branch%2C%20maint%2C%0A%09updated.%208b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac&In-Reply-To=%3C200910171401.n9HE1tvg002793%40sheep.berlios.de%3E"
+       TITLE="[Aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac">djszapi at archlinux.us
+       </A><BR>
+    <I>Sat Oct 17 16:01:55 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[Aurman-dev] [PATCH 3/3] Proof of concept search function
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 7253e66996a192df8b4843f9481316a9507d59da
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This is an automated email from the git hooks/post-receive script. It was
+generated because a ref change was pushed to the repository containing
+the project &quot;Project aurman at BerliOS&quot;.
+
+The branch, maint has been updated
+  discards  e5d94737c1ab005020cc2fa366ec2e04a2756f9d (commit)
+       via  8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac (commit)
+
+This update added new revisions after undoing existing revisions.  That is
+to say, the old revision is not a strict subset of the new revision.  This
+situation occurs when you --force push a change and generate a repository
+containing something like this:
+
+ * -- * -- B -- O -- O -- O (e5d94737c1ab005020cc2fa366ec2e04a2756f9d)
+            \
+             N -- N -- N (8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac)
+
+When this happens we assume that you've already had alert emails for all
+of the O revisions, and so we here report only the revisions in the N
+branch from the common base, B.
+
+Those revisions listed above that are new to this repository have
+not appeared on any other notification email; so we list those
+revisions in full, below.
+
+- Log -----------------------------------------------------------------
+commit 8b47f0cb1a1916b1fc368b7aaa64a02bde1f80ac
+Author: David H&#195;&#161;jek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">dante4d at gmail.com</A>&gt;
+Date:   Fri Oct 16 01:20:53 2009 +0200
+
+    Add --msearch option
+    
+    * char *maintainer added to config_t struct
+    * operation AM_LONG_OP_MSEARCH added to enum
+    * free(maintainer) statement added to config_free
+    * --msearch operation added to usage function
+    * parsing of --msearch operation added to parseargs function
+    * added am_exec_maintaner function to execute the operation
+    * added get_pkg_data function that queries AUR using given method type and arg;
+      the query URL is hardcoded to test one - <A HREF="http://aur.louipc.mine.nu/rpc.php;">http://aur.louipc.mine.nu/rpc.php;</A>
+      returns AM_ERR_MEMORY on bad calloc call
+    * constant AM_USERNAME_MAX added to libalam/alam.h
+    * call to config_free added at bottom of am_aur function
+    * man page was NOT updated
+    
+    Signed-off-by: David H&#195;&#161;jek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">dante4d at gmail.com</A>&gt;
+    Signed-off-by: Laszlo Papp &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/aurman-dev">djszapi at archlinux.us</A>&gt;
+
+-----------------------------------------------------------------------
+
+Summary of changes:
+
+
+hooks/post-receive
+-- 
+Project aurman at BerliOS
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[Aurman-dev] [PATCH 3/3] Proof of concept search function
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[aurman-dev] [Git]Project aurman at BerliOS branch, maint,	updated. 7253e66996a192df8b4843f9481316a9507d59da
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/aurman-dev">More information about the aurman-dev
+mailing list</a><br>
+</body></html>
